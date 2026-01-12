@@ -540,29 +540,43 @@ document.addEventListener('click', (e) => {
     }
 });
 
-
 const fullscreenBtn = document.querySelector('.fullscreen-btn');
 
-fullscreenBtn.addEventListener('pointerdown', toggleFullscreen);
+fullscreenBtn.addEventListener('pointerdown', enterFullscreenLandscape);
 
-function toggleFullscreen() {
-    const container = document.documentElement;
+async function enterFullscreenLandscape() {
+    try {
+        // iOS: native fullscreen only
+        if (video.webkitEnterFullscreen) {
+            video.webkitEnterFullscreen();
+            return;
+        }
 
-    // iOS fallback (Safari / Brave iOS)
-    if (video.webkitEnterFullscreen) {
-        video.webkitEnterFullscreen();
-        return;
-    }
+        // Enter fullscreen
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+        }
 
-    if (!document.fullscreenElement) {
-        container.requestFullscreen().catch(err => {
-            console.error('Fullscreen error:', err);
-        });
-    } else {
-        document.exitFullscreen();
+        // Lock orientation (ANDROID ONLY)
+        if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape');
+        }
+    } catch (err) {
+        console.warn('Orientation lock failed:', err);
     }
 }
 
+/* ===============================
+   EXIT FULLSCREEN CLEANUP
+================================ */
+document.addEventListener('fullscreenchange', async () => {
+    if (!document.fullscreenElement) {
+        // Unlock orientation on exit
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+    }
+});
 
 	
 </script>
@@ -571,6 +585,7 @@ function toggleFullscreen() {
 
 </body>
 </html>
+
 
 
 
