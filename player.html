@@ -540,12 +540,38 @@ document.addEventListener('click', (e) => {
     }
 });
 
+
+const fullscreenBtn = document.querySelector('.fullscreen-btn');
+
+fullscreenBtn.addEventListener('pointerdown', toggleFullscreen);
+
+function toggleFullscreen() {
+    const container = document.documentElement;
+
+    // iOS fallback (Safari / Brave iOS)
+    if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+        return;
+    }
+
+    if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+            console.error('Fullscreen error:', err);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+
+	
 </script>
 
 
 
 </body>
 </html>
+
 
 
 
