@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Netflix Style Player</title>
+
+<style>
+
+:root {
+            --bg-overlay: rgba(0, 0, 0, 0.75);
+            --text-main: #ffffff;
+            --text-muted: #a2a2a2;
+            --hover-bg: rgba(255, 255, 255, 0.1);
+        }
+		
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+ background-color: #141414; /* Dark background like a player */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  height: 100vh;
+  color: white;
+}
+
+/* PLAYER */
+.player {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: black;
+}
+
+/* CENTER LOGO */
+.logo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo span {
+  font-size: 120px;
+  font-weight: 900;
+  color: #e50914;
+  transform: skewX(-10deg);
+}
+
+/* CONTROLS */
+.controls {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 12px 16px;
+}
+
+/* PROGRESS BAR */
+.progress {
+  width: 100%;
+  height: 4px;
+  background: #555;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.progress::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 8%;
+  background: #e50914;
+}
+
+.progress::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  background: #e50914;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* CONTROL ROW */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* LEFT */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.icon.small {
+  font-size: 18px;
+}
+
+/* TITLE */
+.title {
+  margin-left: 12px;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* RIGHT */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.time {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+img {
+width: 34px;
+
+    height: fit-content;
+}
+
+
+.setting-section {
+position: relative;
+}
+
+.settings-menu {
+            background-color: var(--bg-overlay);
+            color: var(--text-main);
+            display: none;
+            padding: 20px 12px;
+            width: 70vw;
+            border-radius: 4px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+			position: absolute;
+			right: 0;
+			bottom: 60px;
+        }
+		.settings-menu.active {
+    display: flex;
+}
+
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Vertical Divider */
+        .column:first-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 0 10px;
+        }
+		
+		.header-section {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-bottom: 10px;
+		}
+		
+		.header-section img {
+		width: 25px;
+		}
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar for the list */
+        .options-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .options-list::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 10px;
+        }
+
+        .option-item {
+            padding: 12px 40px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            position: relative;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .option-item:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-main);
+        }
+
+        /* Active/Selected State */
+        .option-item.active {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* The checkmark effect */
+        .option-item.active::before {
+            content: '✓';
+            position: absolute;
+            left: 15px;
+            font-weight: bold;
+        }
+
+        /* Divider inside the list */
+        .divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 10px 40px;
+        }
+
+</style>
+</head>
+
+<body>
+<video
+  id="video"
+  autoplay
+  playsinline
+  muted
+  style="width:100%; height:100%; background:black;"
+></video>
+  <div class="controls">
+
+    <div class="progress"></div>
+
+    <div class="row">
+
+      <div class="left">
+	  
+	  <img src="./icons/play.svg" class="play-btn" />
+	  <img src="./icons/stop.svg" class="stop-btn" />
+        <img src="./icons/backward.svg" class="backward-btn" />
+		<img src="./icons/forward.svg" class="forward-btn" />
+		<img src="./icons/audio.svg" class="speaker-btn" />
+        <div class="title">Firefly Lane E1 &nbsp; Hello Yellow Brick Road</div>
+      </div>
+
+      <div class="right">
+	  <img src="./icons/info.svg" class="info-btn" />
+		<img src="./icons/pip.svg" class="pip-btn" />
+		<div class="setting-section">
+		<img src="./icons/settings.svg" class="setting-btn active" />
+		
+		
+		
+		<div class="settings-menu">
+		<div class="column">
+        <div class="header-section">
+		<img src="./icons/video.svg" />
+        <p class="header">Video Tracks</p>
+		</div>
+        <div class="options-list">
+            <div class="option-item active">1920×1080</div>
+            <div class="option-item">1920×1080</div>
+            <div class="option-item">1280×720</div>
+            <div class="option-item">1920×1080</div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="header-section">
+		<img src="./icons/audio-track.svg" />
+        <p class="header">Audio Tracks</p>
+		</div>
+        <div class="options-list">
+            <div class="option-item active">Off</div>
+            <div class="option-item">English [Original]</div>
+            <div class="option-item">Hindi</div>
+            <div class="option-item">French</div>
+        </div>
+    </div>
+	<div class="column">
+        <div class="header-section">
+		<img src="./icons/speed.svg" />
+        <p class="header">Speed</p>
+		</div>
+        <div class="options-list">
+            <div class="option-item ">0.25x</div>
+            <div class="option-item active">1.0x</div>
+            <div class="option-item">1.25x</div>
+            <div class="option-item">1.50x</div>
+            <div class="option-item">2.0x</div>
+        </div>
+    </div>
+
+    <div class="column">
+        <div class="header-section">
+		<img src="./icons/subtitle.svg" />
+		<p class="header">Subtitles</p>
+		</div>
+        <div class="options-list">
+            <div class="option-item active">Off</div>
+            <div class="option-item">English (CC)</div>
+            <div class="option-item">Spanish</div>
+        </div>
+    </div>
+	<div class="column">
+        <div class="header-section">
+		<img src="./icons/aspect-ratio.svg" />
+		<p class="header">Aspect Ratio</p>
+		</div>
+        <div class="options-list">
+            <div class="option-item active">Object Fit</div>
+            <div class="option-item">Contain</div>
+            <div class="option-item">Fill</div>
+			<div class="option-item">Cover</div>
+        </div>
+    </div>
+</div>
+		</div>
+		<img src="./icons/fullscreen.svg" class="fullscreen-btn" />
+        <div class="time">51:06</div>
+      </div>
+
+    </div>
+
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+
+<script>
+let player, video;
+
+/* ===============================
+   ACTIVE STATE HANDLER
+================================ */
+function activateItem(container, item) {
+    container.querySelectorAll('.option-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+}
+
+/* ===============================
+   SHAKA INIT
+================================ */
+async function initPlayer() {
+    shaka.polyfill.installAll();
+
+    if (!shaka.Player.isBrowserSupported()) return;
+
+    video = document.getElementById('video');
+    player = new shaka.Player(video);
+
+    await player.load(
+        'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8'
+    );
+
+    buildVideoTracks();
+    buildAudioTracks();
+    buildSubtitleTracks();
+    buildSpeedControls();
+}
+
+document.addEventListener('DOMContentLoaded', initPlayer);
+
+/* ===============================
+   VIDEO QUALITY
+================================ */
+function buildVideoTracks() {
+    const list = document.querySelector('.column:nth-child(1) .options-list');
+    list.innerHTML = '';
+
+    const tracks = player.getVariantTracks();
+    const unique = {};
+
+    tracks.forEach(t => {
+        if (t.height) unique[t.height] = t;
+    });
+
+    Object.values(unique).sort((a, b) => b.height - a.height).forEach(track => {
+        const div = document.createElement('div');
+        div.className = 'option-item';
+        if (track.active) div.classList.add('active');
+        div.textContent = `${track.width}×${track.height}`;
+
+        div.onclick = () => {
+            player.configure({ abr: { enabled: false }});
+            player.selectVariantTrack(track, true);
+            activateItem(list, div);
+        };
+
+        list.appendChild(div);
+    });
+}
+
+/* ===============================
+   AUDIO TRACKS + OFF
+================================ */
+function buildAudioTracks() {
+    const list = document.querySelector('.column:nth-child(2) .options-list');
+    list.innerHTML = '';
+
+    // OFF
+    const off = document.createElement('div');
+    off.className = 'option-item active';
+    off.textContent = 'Off';
+    off.onclick = () => {
+        video.muted = true;
+        activateItem(list, off);
+    };
+    list.appendChild(off);
+
+    const variants = player.getVariantTracks();
+    const langs = {};
+
+    variants.forEach(v => {
+        if (v.audioLanguage) langs[v.audioLanguage] = v;
+    });
+
+    Object.keys(langs).forEach(lang => {
+        const div = document.createElement('div');
+        div.className = 'option-item';
+        div.textContent = lang === 'en' ? 'English [Original]' : lang.toUpperCase();
+
+        div.onclick = () => {
+            video.muted = false;
+            player.selectAudioLanguage(lang);
+            activateItem(list, div);
+        };
+
+        list.appendChild(div);
+    });
+}
+
+/* ===============================
+   SUBTITLES + OFF ALWAYS
+================================ */
+function buildSubtitleTracks() {
+    const list = document.querySelector('.column:nth-child(4) .options-list');
+    list.innerHTML = '';
+
+    // OFF
+    const off = document.createElement('div');
+    off.className = 'option-item active';
+    off.textContent = 'Off';
+    off.onclick = () => {
+        player.setTextTrackVisibility(false);
+        activateItem(list, off);
+    };
+    list.appendChild(off);
+
+    const tracks = player.getTextTracks();
+
+    tracks.forEach(track => {
+        const div = document.createElement('div');
+        div.className = 'option-item';
+        div.textContent = track.language.toUpperCase();
+
+        div.onclick = () => {
+            player.selectTextTrack(track);
+            player.setTextTrackVisibility(true);
+            activateItem(list, div);
+        };
+
+        list.appendChild(div);
+    });
+}
+
+/* ===============================
+   PLAYBACK SPEED
+================================ */
+function buildSpeedControls() {
+    const list = document.querySelector('.column:nth-child(3) .options-list');
+
+    list.querySelectorAll('.option-item').forEach(item => {
+        item.onclick = () => {
+            const speed = parseFloat(item.textContent);
+            video.playbackRate = speed;
+            activateItem(list, item);
+        };
+    });
+}
+
+/* ===============================
+   CONTROLS
+================================ */
+document.querySelector('.play-btn').onclick = () => video.play();
+document.querySelector('.stop-btn').onclick = () => video.pause();
+document.querySelector('.forward-btn').onclick = () => seekBy(10);
+document.querySelector('.backward-btn').onclick = () => seekBy(-10);
+
+function seekBy(sec) {
+    video.currentTime = Math.min(
+        Math.max(0, video.currentTime + sec),
+        video.duration
+    );
+}
+
+/* ===============================
+   PIP
+================================ */
+document.querySelector('.pip-btn').onclick = async () => {
+    if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+    } else {
+        await video.requestPictureInPicture();
+    }
+};
+
+
+const settingsBtn = document.querySelector('.setting-btn');
+const settingsMenu = document.querySelector('.settings-menu');
+
+settingsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    settingsMenu.classList.toggle('active');
+});
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.setting-section')) {
+        settingsMenu.classList.remove('active');
+    }
+});
+
+</script>
+
+
+
+</body>
+</html>
