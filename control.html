@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Player Controls</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #121212;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .control-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            padding-bottom: 10px;
+        }
+
+        .control-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        .icon-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            transition: background 0.2s ease, transform 0.1s;
+        }
+
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 300;
+            font-size: 26px;
+            color: #efefef;
+            transition: all 0.2s ease;
+        }
+
+        .btn-label {
+            font-size: 11px;
+            color: #b0b0b0;
+            text-align: center;
+            transition: color 0.2s ease;
+        }
+
+        /* ACTIVE CIRCLE EFFECT */
+        .control-btn.active .icon-circle {
+            background: #e0e0e0;
+        }
+
+        .control-btn.active .material-symbols-rounded {
+            color: #1b1b1c;
+            font-variation-settings: 'FILL' 1, 'wght' 500;
+        }
+
+        .control-btn.active .btn-label {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .control-btn:active .icon-circle {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+
+<div class="control-bar">
+
+    <div class="control-btn active">
+        <div class="icon-circle">
+            <img src="./icons/speed.svg" />
+        </div>
+        <div class="btn-label">Normal</div>
+    </div>
+
+    <div class="control-btn">
+        <div class="icon-circle">
+            <img src="./icons/picture_in_picture.svg" />
+        </div>
+        <div class="btn-label">Picture in Picture</div>
+    </div>
+
+    <div class="control-btn">
+        <div class="icon-circle">
+             <img src="./icons/dvr.svg" />
+        </div>
+        <div class="btn-label">Multiview</div>
+    </div>
+
+    <div class="control-btn">
+        <div class="icon-circle">
+            <img src="./icons/video.svg" />
+        </div>
+        <div class="btn-label">1920x1080</div>
+    </div>
+	<div class="control-btn">
+        <div class="icon-circle">
+        <img src="./icons/audio.svg" />
+</div>
+        <div class="btn-label">Mono</div>
+    </div>
+	<div class="control-btn">
+        <div class="icon-circle">
+        <img src="./icons/subtitle.svg" />
+</div>
+        <div class="btn-label">Off</div>
+    </div>
+	<div class="control-btn active">
+        <div class="icon-circle">
+            <img src="./icons/speed.svg" />
+        </div>
+        <div class="btn-label">Normal</div>
+    </div>
+
+</div>
+
+<script>
+    const buttons = document.querySelectorAll('.control-btn');
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html>
